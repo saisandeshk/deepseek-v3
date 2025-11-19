@@ -115,7 +115,7 @@ https://arxiv.org/pdf/2412.19437
 ## Project Structure
 
 ```
-DeepSeek-from-Scratch/
+deepseek-v3/
 ├── models/
 │   ├── attention.py          # Multi-Head Latent Attention implementation
 │   ├── config.py            # Model configuration parameters
@@ -142,8 +142,8 @@ DeepSeek-from-Scratch/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/username/DeepSeek-from-Scratch.git
-cd DeepSeek-from-Scratch
+git clone https://github.com/saisandeshk/deepseek-v3.git
+cd deepseek-v3
 ```
 
 2. Create and activate virtual environment:
