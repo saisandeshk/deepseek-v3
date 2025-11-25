@@ -1,14 +1,36 @@
 import torch
 import tiktoken
+
+from pathlib import Path
+import sys
+# Ensure project root is on sys.path so local package imports work when running this script
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from models import DeepSeekV3
 
 def generate_text(model_path, config, prompt, max_tokens=100, temperature=0.8, top_k=50):
     """Generate text from a prompt using trained model."""
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    
+
     # Load model
     model = DeepSeekV3(config)
-    model.load_state_dict(torch.load(model_path, map_location=device))
+
+    # load checkpoint and try to auto-detect saved state dict / config
+    checkpoint = torch.load(model_path, map_location=device)
+    state_dict = checkpoint.get("model_state_dict", checkpoint)
+    # if checkpoint contains a config dict, prefer it
+    ckpt_config = checkpoint.get("config", None)
+    if ckpt_config is not None:
+        print("Checkpoint contains a config — consider using it to construct the model:")
+        print(ckpt_config)
+
+    # Try loading and print mismatches (use strict=False for diagnostics)
+    load_result = model.load_state_dict(state_dict, strict=False)
+    print("Loaded checkpoint: missing keys:", load_result.missing_keys)
+    print("Loaded checkpoint: unexpected keys:", load_result.unexpected_keys)
+
     model = model.to(device)
     model.eval()
     
@@ -31,13 +53,13 @@ def run_inference_examples():
         
         config = DeepSeekConfig(
             vocab_size=50257,
-            block_size=128,
-            n_layer=4,
-            n_head=4,
-            n_embd=256,
-            kv_lora_rank=64,
-            q_lora_rank=96,
-            n_experts=4,
+            block_size=1024,
+            n_layer=8,
+            n_head=8,
+            n_embd=512,
+            kv_lora_rank=128,
+            q_lora_rank=192,
+            n_experts=8,
             n_experts_per_token=2,
             mtp_num_heads=1,
             dropout=0.1
@@ -72,3 +94,6 @@ def run_inference_examples():
         print("Model file 'best_deepseek_v3.pt' not found. Please train the model first.")
     except Exception as e:
         print(f"Error during inference: {e}")
+    
+if __name__ == "__main__":
+    run_inference_examples()

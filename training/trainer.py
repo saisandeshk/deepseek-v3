@@ -41,7 +41,7 @@ def train_model():
     device_type = 'cuda' if 'cuda' in device else 'cpu'
     dtype = 'bfloat16' if torch.cuda.is_available() and torch.cuda.is_bf16_supported() else 'float16'
     ptdtype = {'float32': torch.float32, 'bfloat16': torch.bfloat16, 'float16': torch.float16}[dtype]
-    ctx = nullcontext() if device_type == 'cpu' else torch.cuda.amp.autocast(dtype=ptdtype)
+    ctx = nullcontext() if device_type == 'cpu' else torch.amp.autocast("cuda", dtype=ptdtype)
 
     # Initialize wandb
     wandb.init(
@@ -94,7 +94,7 @@ def train_model():
     # Training loop
     model.train()
     best_val_loss = float('inf')
-    scaler = torch.cuda.amp.GradScaler(enabled=(dtype == 'float16'))
+    scaler = torch.amp.GradScaler("cuda", enabled=(dtype == 'float16'))
 
     for epoch in tqdm(range(max_iters)):
         # Evaluation

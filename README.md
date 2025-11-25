@@ -191,10 +191,10 @@ Training progress is tracked using Weights & Biases:
 
 ## Inference
 
-Update the test prompts in `inference/run_inference.py` and run:
+Update the test prompts in `inference/generate.py` and run:
 
 ```bash
-python inference/run_inference.py
+python inference/generate.py
 ```
 
 The model will generate text completions based on your input prompts.
